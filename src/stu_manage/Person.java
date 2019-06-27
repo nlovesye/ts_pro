@@ -1,6 +1,6 @@
 package stu_manage;
 
-public class Person {
+public class Person implements Comparable<Person> {
 	private Role role;
 	private String number;
 	private String name;
@@ -40,7 +40,7 @@ public class Person {
 	
 	@Override
 	public String toString() {
-		return "人 [角色：" + role.getName() + ", 编号：" + number + ", 姓名：" + name + ", 年龄：" + age + ", 性别：" + sex + "]";
+		return "[角色：" + role.getName() + ", 编号：" + number + ", 姓名：" + name + ", 年龄：" + age + ", 性别：" + sex + "]";
 	}
 	
 	public Person() {
@@ -62,4 +62,9 @@ public class Person {
 		return this.number.equals(number);
 	}
 
+	@Override
+	public int compareTo(Person o) {
+		// TODO 自动生成的方法存根
+		return o.getAge() <= this.getAge() ? 1 : -1;
+	}
 }
