@@ -18,4 +18,11 @@ public enum Role {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	@Override
+	public String toString() {
+		// TODO 自动生成的方法存根
+		return this.getName();
+	}
+	
 }

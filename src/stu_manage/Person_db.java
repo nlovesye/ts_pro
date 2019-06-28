@@ -10,8 +10,8 @@ public class Person_db {
 	public static ArrayList<Admin> admins = new ArrayList<Admin>();
 	public static ArrayList<Teacher> teachers = new ArrayList<Teacher>();
 	public static ArrayList<Student> students = new ArrayList<Student>();
-	boolean isLogin = false;
 	public static Scanner sc = new Scanner(System.in);
+	public static Person user = null;
 	
 	static {
 		admins.addAll(makeAdmin(5, 20, 60));
@@ -77,51 +77,10 @@ public class Person_db {
 	 * 启动
 	 */
 	public void start() {
-		System.out.println("-----------------欢迎进入管理系统，请选择登陆角色---------------------");
-		System.out.println("老师请输入：1， 学生请输入：2， 管理员请输入：3");
-		int type = sc.nextInt();
-		if (type == 1) {
-			login();
-		} else if (type == 2) {
-			login();
-		} else if (type == 3) {
-			adminLogin();
-		} else {
-			System.out.println("不存在该角色，请重新输入");
-			System.exit(0);
-		}
-	}
-	
-	private void adminLogin() {
-		System.out.println("请输入登陆编号：");
-		String number = sc.next();
-		Admin user = (Admin)findByNumber(admins, number);
-		if (user != null) {
-			System.out.println("登陆成功,当前登陆角色为>>>>>>>" + user);
-			user.showActions();
-		} else {
-			System.out.println("登陆编号不存在，请重新输入：");
-			adminLogin();
-		}
-	}
-	
-	private void login() {
-		System.out.println("请输入登陆编号：");
-		String number = sc.next();
-		admins.forEach(admin -> {
-			if (admin.equals((Object)number)) {
-				System.out.println("登陆成功,当前登陆角色为" + 1);
-			} else {
-				System.out.println("不存在该用户");
-				System.out.println("重新输入：Y，退出系统：N");
-				String isExit = sc.next();
-				if (isExit.equalsIgnoreCase("y")) {
-					login();
-				} else {
-					System.exit(0);
-				}
-			}
-		});
+		System.out.println("-----------------欢迎进入管理系统---------------------");
+		showAdmins();
+		showTeachers();
+		showStudents();
 	}
 	
 	/**
@@ -152,7 +111,7 @@ public class Person_db {
 	}
 	
 	/**
-	 * 根据编号查询对应角色
+	 * 根据对应角色和编号查询对应角色
 	 */
 	public static Person findByNumber(ArrayList<? extends Person> list, String number) {
 		Person ps = null;
@@ -169,14 +128,78 @@ public class Person_db {
 	}
 	
 	/**
+	 * 根据编号查询用户
+	 * @param number
+	 * @return
+	 */
+	public static Person findOne(String number) {
+		Person ps = findByNumber(admins, number);
+		if (ps != null) {
+			return ps;
+		}
+		ps = findByNumber(teachers, number);
+		if (ps != null) {
+			return ps;
+		}
+		ps = findByNumber(students, number);
+		return ps;
+	}
+	
+	/**
 	 * 重试或退出系统
 	 */
 	public static boolean isRetry() {
-		System.out.println("编号不存在，重试(Y)，退出(N)");
+		System.out.println("重试(Y)，退出(N)");
 		String isExit = sc.next();
 		if (isExit.equalsIgnoreCase("y")) {
 			return true;
 		}
 		return false;
 	}
+	
+	/**
+	 * 添加一个老师/学生
+	 */
+	public static void addPerson(Person ps) {
+		if (ps.getRole().getName().equals("老师")) {
+			teachers.add((Teacher)ps);
+			System.out.println("添加老师成功!");
+			showTeachers();
+		} else if (ps.getRole().getName().equals("学生")) {
+			students.add((Student)ps);
+			System.out.println("添加学生成功!");
+			showStudents();
+		} else {
+			System.out.println("不存在的角色类型");
+		}
+	}
+	
+	/**
+	 * 删除一个老师/学生
+	 */
+	
+	public static void removerPerson(Role role, String number) {
+		if (role.getName().equals("老师")) {
+			for(int i = 0; i < teachers.size(); i++) {
+				if (teachers.get(i).equals((Object)number)) {
+					teachers.remove(i);
+					break;
+				}
+			}
+			System.out.println("删除老师成功!");
+			showTeachers();
+		} else if (role.getName().equals("学生")) {
+			for(int i = 0; i < students.size(); i++) {
+				if (students.get(i).equals((Object)number)) {
+					students.remove(i);
+					break;
+				}
+			}
+			System.out.println("删除学生成功!");
+			showStudents();
+		} else {
+			System.out.println("不存在的角色类型");
+		}
+	}
+	
 }

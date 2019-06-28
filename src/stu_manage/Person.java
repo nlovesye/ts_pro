@@ -67,4 +67,18 @@ public class Person implements Comparable<Person> {
 		// TODO 自动生成的方法存根
 		return o.getAge() <= this.getAge() ? 1 : -1;
 	}
+	
+	/**
+	 * 登录
+	 * @param number
+	 * @return 成功返回Person失败返回null
+	 */
+	public Person login(String number) {
+		Person ps = Person_db.findOne(number);
+		if (ps != null) {
+			System.out.println("登录成功!当前登录的角色为>>>>>>>");
+			System.out.println(ps);
+		}
+		return ps;
+	}
 }
