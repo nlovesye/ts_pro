@@ -1,6 +1,7 @@
-node_modules
-ios
-android
-.vscode
-ignite/ignite.json
+**/*.md
+**/*.svg
+**/*.ejs
+**/*.html
 package.json
+.umi
+.umi-production
