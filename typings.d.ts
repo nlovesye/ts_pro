@@ -1,4 +1,3 @@
 declare module '*.css';
+declare module '*.less';
 declare module '*.png';
-
-declare module '@ant-design/icons';

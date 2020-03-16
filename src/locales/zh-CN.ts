@@ -1,3 +1,3 @@
 export default {
-    'index.start': '开始喔1',
+  TEST: '开始喔1',
 };
