@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   AppModelState,
   ConnectProps,
@@ -10,8 +10,10 @@ import {
   useAccess,
   history,
   Link,
+  Dispatch,
 } from 'umi';
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, Dropdown } from 'antd';
+import { DownOutlined, LoginOutlined } from '@ant-design/icons';
 import * as theme from '@/theme';
 import '@/assets/styles/global.less';
 
@@ -20,16 +22,31 @@ const { SubMenu } = Menu;
 interface PageProps extends ConnectProps {
   app: AppModelState;
   loading: boolean;
+  dispatch: Dispatch;
 }
 
-const BaseLayout: React.FC<PageProps> = ({ children }) => {
-  const { initialState } = useModel('@@initialState');
-  // const intl = useIntl()
-  const access = useAccess();
+const BaseLayout: React.FC<PageProps> = ({ app, children, dispatch }) => {
+  // const { initialState } = useModel('@@initialState');
+  const intl = useIntl();
+  const { isLogin, userName } = app;
+  // const access = useAccess();
   // console.log('auth', initialState, access)
-  if (!initialState?.isLogin) {
-    history.replace('/login');
-  }
+  // if (!isLogin) {
+  //     history.replace('/login');
+  // }
+
+  const rightInfoClick = ({ key }: { key: string }) => {
+    if (key === 'logout') {
+      dispatch({ type: 'app/logout' });
+    }
+  };
+
+  useEffect(() => {
+    if (!isLogin) {
+      history.push('/login');
+    }
+  }, [isLogin]);
+
   return (
     // <div>
     //     <Access
@@ -53,6 +70,24 @@ const BaseLayout: React.FC<PageProps> = ({ children }) => {
           <Menu.Item key="2">nav 2</Menu.Item>
           <Menu.Item key="3">nav 3</Menu.Item>
         </Menu>
+
+        <Dropdown
+          trigger={['click']}
+          placement="bottomRight"
+          overlay={
+            <Menu theme="dark" onClick={rightInfoClick}>
+              <Menu.Item key="logout">
+                <LoginOutlined />
+                {intl.formatMessage({ id: 'LOGOUT', defaultMessage: '退出' })}
+              </Menu.Item>
+            </Menu>
+          }
+        >
+          <div className="right_info">
+            {userName}
+            <DownOutlined style={{ marginLeft: 10 }} />
+          </div>
+        </Dropdown>
       </Layout.Header>
 
       <Layout className="global_layout">
@@ -123,6 +158,7 @@ const BaseLayout: React.FC<PageProps> = ({ children }) => {
   );
 };
 
+// export default BaseLayout
 export default connect(({ app }: { app: AppModelState; loading: Loading }) => ({
   app,
 }))(BaseLayout);

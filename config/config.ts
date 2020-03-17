@@ -11,5 +11,15 @@ export default defineConfig({
   dva: {
     immer: true,
   },
+  request: {
+    dataField: 'data',
+  },
+  proxy: {
+    '/api': {
+      target: 'https://sscm.smartcomma.com/',
+      changeOrigin: true,
+      pathRewrite: { '^/api': '/api' },
+    },
+  },
   theme,
 });

@@ -1,3 +1,5 @@
+@import './reset.css';
+
 html,
 body,
 #root {
@@ -8,4 +10,21 @@ body,
 .root_layout {
   width: 100%;
   height: 100%;
+
+  .global_header {
+    display: flex;
+    justify-content: space-between;
+
+    .right_info {
+      width: 120px;
+      color: #fff;
+      text-align: right;
+      padding: 0 10px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #000;
+      }
+    }
+  }
 }
