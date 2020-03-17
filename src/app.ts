@@ -1,5 +1,5 @@
 import { localRead } from '@/utils';
-import { RequestConfig, useStore } from 'umi';
+import { RequestConfig } from 'umi';
 
 export interface IInitState {}
 
@@ -13,6 +13,11 @@ interface ErrorInfoStructure {
   host?: string; // onvenient for backend Troubleshooting: host of current access server
 }
 
+// interface RequestError extends Error {
+//   data?: any; // 这里是后端返回的原始数据
+//   info?: ErrorInfoStructure;
+// }
+
 export async function getInitialState() {
   const initState: IInitState = {};
   // console.log('getInitialState', initState)
@@ -22,13 +27,13 @@ export async function getInitialState() {
 export const request: RequestConfig = {
   timeout: 1000 * 60 * 1,
   errorConfig: {
-    adaptor: res => {
+    adaptor: err => {
       // console.log('adaptor', res)
-      const err: ErrorInfoStructure = {
-        ...res,
-        errorMessage: res.msg || '失败！',
+      const error: ErrorInfoStructure = {
+        ...err,
+        errorMessage: err.msg || '失败！',
       };
-      return err;
+      return error;
     },
   },
   middlewares: [

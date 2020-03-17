@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { Form, Input, Button, Checkbox } from 'antd';
-import { request, history, useDispatch, useSelector, AppModelState } from 'umi';
+import { history, useDispatch, useSelector, AppModelState, Loading } from 'umi';
 import { hex_md5 } from '@/utils/md5';
+import { _login } from '@/services';
 import style from './style.css';
 
 interface LoginRes {
@@ -19,9 +20,12 @@ interface LoginRes {
 }
 
 const Login: React.FC = () => {
-  const { isLogin } = useSelector(({ app }: { app: AppModelState }) => ({
-    isLogin: app.isLogin,
-  }));
+  const { isLogin, loginLoading } = useSelector(
+    ({ app, loading }: { app: AppModelState; loading: Loading }) => ({
+      isLogin: app.isLogin,
+      loginLoading: loading.effects['app/login'],
+    }),
+  );
   const dispatch = useDispatch();
 
   const layout = {
@@ -37,19 +41,9 @@ const Login: React.FC = () => {
 
   const onFinish = async (values: any) => {
     const { userName, password, remember } = values;
-    const reqData = new FormData();
-    reqData.append('grant_type', 'password');
-    reqData.append('username', userName);
-    reqData.append('password', hex_md5(password));
-    reqData.append('remember', remember);
-    const ret: LoginRes = await request('/api/web/token', {
-      method: 'post',
-      data: reqData,
-    });
-    // console.log('ret', ret)
     dispatch({
-      type: 'app/setLoginInfo',
-      payload: { accessToken: ret.access_token, userName: ret.username },
+      type: 'app/login',
+      payload: { userName, password, remember },
     });
   };
 
@@ -99,7 +93,12 @@ const Login: React.FC = () => {
         </Form.Item>
 
         <Form.Item {...btnLayout}>
-          <Button block={true} type="primary" htmlType="submit">
+          <Button
+            block={true}
+            type="primary"
+            htmlType="submit"
+            loading={loginLoading}
+          >
             登录
           </Button>
         </Form.Item>
