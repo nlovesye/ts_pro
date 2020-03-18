@@ -5,16 +5,22 @@ import {
   Loading,
   connect,
   useIntl,
-  useModel,
   Access,
-  useAccess,
   history,
-  Link,
   Dispatch,
 } from 'umi';
 import { Layout, Menu, Dropdown } from 'antd';
 import { DownOutlined, LoginOutlined } from '@ant-design/icons';
 import * as theme from '@/theme';
+import { IPermission } from '@/types';
+import {
+  notShowInSiderMenuCodes,
+  sideMenuIcons,
+  canNotCloseTabs,
+} from '@/appConfig';
+import MyIcon from '@/_c/Icon';
+import { getPermissionByCode, authByCode } from '@/utils/logic';
+import NotAuth from '@/pages/401';
 import '@/assets/styles/global.less';
 
 const { SubMenu } = Menu;
@@ -26,14 +32,10 @@ interface PageProps extends ConnectProps {
 }
 
 const BaseLayout: React.FC<PageProps> = ({ app, children, dispatch }) => {
-  // const { initialState } = useModel('@@initialState');
   const intl = useIntl();
-  const { isLogin, userName } = app;
+  const { isLogin, userName, permissions, activeCode, openTabs } = app;
   // const access = useAccess();
-  // console.log('auth', initialState, access)
-  // if (!isLogin) {
-  //     history.replace('/login');
-  // }
+  // console.log('BaseLayout', access)
 
   const rightInfoClick = ({ key }: { key: string }) => {
     if (key === 'logout') {
@@ -47,29 +49,101 @@ const BaseLayout: React.FC<PageProps> = ({ app, children, dispatch }) => {
     }
   }, [isLogin]);
 
+  const filterMenus = (menus: IPermission[]): IPermission[] =>
+    menus.filter(item => !notShowInSiderMenuCodes.some(cd => item.code === cd));
+
+  const menuItem = (menu: IPermission) => {
+    const { code, name, children, type } = menu;
+    const iconType = (sideMenuIcons as any)[code];
+    if (!!children && children.length && type !== 'menu') {
+      return (
+        <SubMenu
+          key={code}
+          title={
+            <span>
+              {code in sideMenuIcons && <MyIcon type={iconType} />}
+              <span>{name}</span>
+            </span>
+          }
+        >
+          {filterMenus(children).map(item => menuItem(item))}
+        </SubMenu>
+      );
+    } else {
+      return (
+        <Menu.Item key={code}>
+          {code in sideMenuIcons && <MyIcon type={iconType} />}
+          <span>{name}</span>
+        </Menu.Item>
+      );
+    }
+  };
+
+  const handleMenuClick = ({ key }: { key: string }) => {
+    const curItem = getPermissionByCode(permissions, key);
+    // console.log('curItem', curItem)
+    dispatch({
+      type: 'app/selectTab',
+      payload: {
+        code: key,
+        name: curItem.name,
+      },
+    });
+  };
+
+  const handleMenuClose = (code: string) => {
+    dispatch({
+      type: 'app/closeTab',
+      payload: {
+        code,
+      },
+    });
+  };
+
   return (
-    // <div>
-    //     <Access
-    //         accessible={access.index}
-    //         fallback={<div>no auth</div>}
-    //     >
-    //         hi nihao
-    //     </Access>
-    //     {children}
-    // </div>
     <Layout className="root_layout">
       <Layout.Header className="global_header">
-        <div className="logo" />
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          defaultSelectedKeys={['2']}
-          style={{ lineHeight: `${theme.layoutHeaderHeight}px` }}
-        >
-          <Menu.Item key="1">nav 1</Menu.Item>
-          <Menu.Item key="2">nav 2</Menu.Item>
-          <Menu.Item key="3">nav 3</Menu.Item>
-        </Menu>
+        <div className={`logo`}>
+          <img src="" alt="" />
+        </div>
+
+        <ul className="tabs_title_list">
+          {openTabs.map(tab => {
+            return (
+              <li
+                key={tab.code}
+                className={`tab_title_item ${
+                  tab.code === activeCode ? 'active' : ''
+                }`}
+              >
+                <div
+                  className="trapezoid"
+                  onClick={() => {
+                    handleMenuClick({ key: tab.code });
+                  }}
+                ></div>
+                <span
+                  className="title"
+                  onClick={() => {
+                    handleMenuClick({ key: tab.code });
+                  }}
+                >
+                  {tab.name}
+                </span>
+                {!canNotCloseTabs.some(c => c === tab.code) && (
+                  <MyIcon
+                    type="icon-baseline-close-px"
+                    className="close"
+                    onClick={e => {
+                      e.stopPropagation();
+                      handleMenuClose(tab.code);
+                    }}
+                  />
+                )}
+              </li>
+            );
+          })}
+        </ul>
 
         <Dropdown
           trigger={['click']}
@@ -97,62 +171,24 @@ const BaseLayout: React.FC<PageProps> = ({ app, children, dispatch }) => {
           collapsible
           collapsedWidth={theme.menuCollapsedWidth}
         >
-          <Menu
-            mode="inline"
-            defaultSelectedKeys={['1']}
-            defaultOpenKeys={['sub1']}
-            style={{ height: '100%', borderRight: 0 }}
-          >
-            <SubMenu
-              key="sub1"
-              title={
-                <span>
-                  {/* <UserOutlined /> */}
-                  subnav 1
-                </span>
-              }
+          {permissions && permissions.length ? (
+            <Menu
+              className="sider_menu"
+              mode="inline"
+              onClick={handleMenuClick}
+              selectedKeys={[activeCode]}
+              // defaultOpenKeys={['sub1']}
             >
-              <Menu.Item key="1">
-                <Link to="/">Home Page</Link>
-              </Menu.Item>
-              <Menu.Item key="2">
-                <Link to="/test">test Page</Link>
-              </Menu.Item>
-              <Menu.Item key="3">option3</Menu.Item>
-              <Menu.Item key="4">option4</Menu.Item>
-            </SubMenu>
-            <SubMenu
-              key="sub2"
-              title={
-                <span>
-                  {/* <LaptopOutlined /> */}
-                  subnav 2
-                </span>
-              }
-            >
-              <Menu.Item key="5">option5</Menu.Item>
-              <Menu.Item key="6">option6</Menu.Item>
-              <Menu.Item key="7">option7</Menu.Item>
-              <Menu.Item key="8">option8</Menu.Item>
-            </SubMenu>
-            <SubMenu
-              key="sub3"
-              title={
-                <span>
-                  {/* <NotificationOutlined /> */}
-                  subnav 3
-                </span>
-              }
-            >
-              <Menu.Item key="9">option9</Menu.Item>
-              <Menu.Item key="10">option10</Menu.Item>
-              <Menu.Item key="11">option11</Menu.Item>
-              <Menu.Item key="12">option12</Menu.Item>
-            </SubMenu>
-          </Menu>
+              {filterMenus(permissions).map(menu => menuItem(menu))}
+            </Menu>
+          ) : null}
         </Layout.Sider>
 
-        <Layout.Content className="global_content">{children}</Layout.Content>
+        <Layout.Content className="global_content">
+          <Access accessible={authByCode(activeCode)} fallback={<NotAuth />}>
+            {children}
+          </Access>
+        </Layout.Content>
       </Layout>
     </Layout>
   );

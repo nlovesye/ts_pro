@@ -1,12 +1,16 @@
-import { Effect, Reducer, Subscription } from 'umi';
+import { Effect, Reducer, Subscription, history } from 'umi';
 import { localRead, localSet, localRemove } from '@/utils';
 import { _login } from '@/services';
 import { hex_md5 } from '@/utils/md5';
+import { IPermission, ITab } from '@/types';
 
 export interface AppModelState {
   isLogin: boolean;
   accessToken: string | null;
   userName: string;
+  permissions: IPermission[];
+  activeCode: string;
+  openTabs: ITab[];
 }
 
 export interface AppModelType {
@@ -18,20 +22,37 @@ export interface AppModelType {
   reducers: {
     setLoginInfo: Reducer<AppModelState>;
     logout: Reducer<AppModelState>;
+    selectTab: Reducer<AppModelState>;
+    closeTab: Reducer<AppModelState>;
   };
-  // subscriptions: {};
+  subscriptions: {
+    // test: Subscription
+  };
 }
 
-const initState = (): AppModelState => {
+const initState = () => {
   const BasicAuth = 'Basic YXBwOjEyMzQ1Ng==';
   const isLogin = Boolean(localRead('isLogin'));
   const accessToken = isLogin ? localRead('accessToken') : BasicAuth;
   const userName = localRead('userName') || '';
-  return {
+  const permissions = JSON.parse(localRead('permissions') || '[]');
+  // const curRoute = getRouteByPath(history.location.pathname)
+  if (history.location.pathname !== '/') {
+    history.replace('/');
+  }
+  const curRoute = { code: 'HOME', name: '首页' };
+  // console.log('history', history, routes, curRoute)
+  const state: AppModelState = {
     isLogin,
     accessToken,
     userName,
+    permissions,
+    activeCode: curRoute.code || '',
+    openTabs: !!curRoute.code
+      ? [{ code: curRoute.code, name: curRoute.name || '' }]
+      : [],
   };
+  return state;
 };
 
 export default <AppModelType>{
@@ -63,7 +84,11 @@ export default <AppModelType>{
         const ret: LoginRes = yield _login(reqData);
         yield put({
           type: 'setLoginInfo',
-          payload: { accessToken: ret.access_token, userName: ret.username },
+          payload: {
+            accessToken: ret.access_token,
+            userName: ret.username,
+            permissions: ret.permissions,
+          },
         });
       } catch (error) {
         console.log(error);
@@ -73,10 +98,11 @@ export default <AppModelType>{
 
   reducers: {
     setLoginInfo(state: AppModelState, action) {
-      const { accessToken, userName } = action.payload;
+      const { accessToken, userName, permissions } = action.payload;
       localSet('isLogin', true);
       localSet('accessToken', accessToken);
       localSet('userName', userName);
+      localSet('permissions', JSON.stringify(permissions || []));
       return {
         ...state,
         isLogin: true,
@@ -87,16 +113,72 @@ export default <AppModelType>{
       localRemove('isLogin');
       localRemove('accessToken');
       localRemove('userName');
+      localRemove('permissions');
       return {
         ...state,
         isLogin: false,
         accessToken: null,
         userName: '',
+        permissions: [],
+      };
+    },
+    selectTab(state: AppModelState, action) {
+      const { code, name } = action.payload;
+      const { openTabs } = state;
+      if (state.activeCode === code) {
+        return;
+      }
+      let newActiveCode = code;
+      let newOpenTabs: ITab[] = [...openTabs];
+      if (!openTabs.some(t => t.code === code)) {
+        newOpenTabs.push({ code, name });
+      }
+      history.push(code);
+      // console.log('history', history)
+      return {
+        ...state,
+        activeCode: newActiveCode,
+        openTabs: newOpenTabs,
+      };
+    },
+    closeTab(state: AppModelState, action) {
+      const { code } = action.payload;
+      const { openTabs } = state;
+      const targetIndex = openTabs.findIndex(t => t.code === code);
+      if (targetIndex < 0) {
+        return;
+      }
+      let newOpenTabs: ITab[] = openTabs.filter((tab, i) => i !== targetIndex);
+      const newIndex =
+        targetIndex - 1 > -1
+          ? targetIndex - 1
+          : targetIndex < newOpenTabs.length
+          ? targetIndex
+          : -1;
+      let newActiveCode = !!newOpenTabs[newIndex]
+        ? newOpenTabs[newIndex].code
+        : '';
+      history.push(newActiveCode || '/');
+      return {
+        ...state,
+        activeCode: newActiveCode,
+        openTabs: newOpenTabs,
       };
     },
   },
 
-  // subscriptions: {}
+  subscriptions: {
+    // test({ dispatch, history }) {
+    //   return history.listen(({ pathname }) => {
+    //     console.log('subs', history)
+    //     // if (pathname === '/') {
+    //     //   dispatch({
+    //     //     type: 'query',
+    //     //   })
+    //     // }
+    //   });
+    // }
+  },
 };
 
 // export default function () {

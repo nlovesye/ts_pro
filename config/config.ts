@@ -22,4 +22,9 @@ export default defineConfig({
     },
   },
   theme,
+  // dynamicImport: {
+  //   // 无需 level, webpackChunkName 配置
+  //   // loadingComponent: './components/PageLoading/index'
+  //   loading: '@/components/PageLoading/index',
+  // },
 });

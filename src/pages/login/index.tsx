@@ -1,23 +1,22 @@
 import React, { useEffect } from 'react';
 import { Form, Input, Button, Checkbox } from 'antd';
 import { history, useDispatch, useSelector, AppModelState, Loading } from 'umi';
-import { hex_md5 } from '@/utils/md5';
 import { _login } from '@/services';
 import style from './style.css';
 
-interface LoginRes {
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
-  expires_in: number;
-  scope: string;
-  companyId: number | null;
-  id: number;
-  isAllClientProject: boolean;
-  organizationName: string;
-  username: string;
-  permissions: any[];
-}
+// interface LoginRes {
+//   access_token: string;
+//   refresh_token: string;
+//   token_type: string;
+//   expires_in: number;
+//   scope: string;
+//   companyId: number | null;
+//   id: number;
+//   isAllClientProject: boolean;
+//   organizationName: string;
+//   username: string;
+//   permissions: any[];
+// }
 
 const Login: React.FC = () => {
   const { isLogin, loginLoading } = useSelector(

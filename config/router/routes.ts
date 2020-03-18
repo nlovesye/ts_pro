@@ -10,12 +10,25 @@ export default [
     routes: [
       {
         path: '/',
-        component: './home',
+        redirect: '/HOME',
       },
       {
-        path: '/test',
-        component: './test',
-        wrappers: ['@/wrappers/auth'],
+        path: '/HOME',
+        code: 'HOME',
+        name: '首页',
+        component: './home',
+        // wrappers: ['@/wrappers/auth'],
+      },
+      {
+        path: '/CLIENT_SOURCE',
+        code: 'CLIENT_SOURCE',
+        name: '客户资料',
+        component: './client',
+        // wrappers: ['@/wrappers/auth'],
+      },
+      {
+        path: '*',
+        component: './404',
       },
     ],
   },
