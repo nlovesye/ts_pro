@@ -1,4 +1,4 @@
 export default {
-  TEST: '开始喔1',
+  TEST: '测试信息',
   LOGOUT: '退出',
 };
