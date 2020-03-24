@@ -3,28 +3,28 @@ import { routes } from './router';
 import theme from './theme';
 
 export default defineConfig({
-  routes,
-  hash: true,
-  locale: {
-    antd: true,
-  },
-  dva: {
-    immer: true,
-  },
-  request: {
-    dataField: 'data',
-  },
-  proxy: {
-    '/api': {
-      target: 'https://sscm.smartcomma.com/',
-      changeOrigin: true,
-      pathRewrite: { '^/api': '/api' },
+    routes,
+    hash: true,
+    locale: {
+        antd: true,
     },
-  },
-  theme,
-  // dynamicImport: {
-  //   // 无需 level, webpackChunkName 配置
-  //   // loadingComponent: './components/PageLoading/index'
-  //   loading: '@/components/PageLoading/index',
-  // },
+    dva: {
+        immer: true,
+    },
+    request: {
+        dataField: 'data',
+    },
+    proxy: {
+        '/api': {
+            target: 'http://localhost:7777/',
+            changeOrigin: true,
+            pathRewrite: { '^/api': '/api' },
+        },
+    },
+    theme,
+    // dynamicImport: {
+    //   // 无需 level, webpackChunkName 配置
+    //   // loadingComponent: './components/PageLoading/index'
+    //   loading: '@/components/PageLoading/index',
+    // },
 });
