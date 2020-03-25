@@ -84,14 +84,14 @@ export default <AppModelType>{
             try {
                 const ret: LoginRes = yield _login(reqData);
                 console.log('ret', ret);
-                // yield put({
-                //   type: 'setLoginInfo',
-                //   payload: {
-                //     accessToken: ret.access_token,
-                //     userName: ret.username,
-                //     permissions: ret.permissions,
-                //   },
-                // });
+                yield put({
+                    type: 'setLoginInfo',
+                    payload: {
+                        accessToken: ret.access_token,
+                        userName: ret.username,
+                        permissions: ret.permissions,
+                    },
+                });
             } catch (error) {
                 console.log(error);
             }
