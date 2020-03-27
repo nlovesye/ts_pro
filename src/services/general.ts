@@ -20,6 +20,16 @@ export interface General {
     controlVal: number; // 统御值
 }
 
+export interface IQuery {
+    camp?: number;
+    quality?: number;
+    cavalry?: number;
+    mauler?: number;
+    bowman?: number;
+    spearman?: number;
+    apparatus?: number;
+}
+
 // 添加武将
 export const _addGeneral = async (data: General) =>
     await POST('/api/general', { data });
@@ -33,5 +43,5 @@ export const _deleteGeneral = async (_id: string) =>
     await DELETE('/api/general', { data: _id });
 
 // 获取武将列表
-export const _getGeneral = async (data: any) =>
-    await GET('/api/general', { data });
+export const _getGeneral = async (data: IQuery) =>
+    await GET('/api/general', { params: data });
