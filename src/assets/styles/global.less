@@ -4,164 +4,174 @@
 html,
 body,
 #root {
-  width: 100%;
-  height: 100%;
+    width: 100%;
+    height: 100%;
 }
 
 .root_layout {
-  width: 100%;
-  height: 100%;
+    width: 100%;
+    height: 100%;
 
-  .global_header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-
-    &::after {
-      content: '';
-      position: absolute;
-      height: 3px;
-      background-color: #3d3d3d;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    }
-
-    .logo {
-      height: 100%;
-      width: 200px;
-      flex-shrink: 0;
-      text-align: center;
-      font-size: 0;
-
-      img {
-        display: inline-block;
-        width: 120px;
-        height: 36px;
-        border-radius: 6px;
-        background-color: orangered;
-      }
-    }
-
-    .tabs_title_list {
-      display: flex;
-      flex-grow: 1;
-      height: 100%;
-      align-items: flex-end;
-      user-select: none;
-      padding-bottom: 3px;
-      flex-grow: 1;
-      // position: absolute;
-      overflow: hidden;
-      bottom: 0;
-      transition: left 200ms;
-
-      .tab_title_item {
-        width: 140px;
-        height: 38px;
-        perspective: 20px;
-        position: relative;
-        color: rgba(255, 255, 255, 0.36);
-        font-size: 12px;
-        text-align: center;
+    .global_header {
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
-        padding-top: 8px;
-        padding-left: 20px;
-        padding-right: 30px;
-        transition: color 200ms;
-        flex-shrink: 0;
-        // overflow: hidden;
+        position: relative;
+        overflow: hidden;
 
-        &:not(:first-child) {
-          margin-left: -20px;
-        }
-
-        .trapezoid {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          top: 0;
-          left: 0;
-          background-color: #282828;
-          border-radius: 8px 8px 0px 0px;
-          transform: rotateX(10deg);
-          transform-origin: 50% 100%;
-          box-shadow: 0 0 2px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        .title {
-          position: relative;
-          z-index: 99;
-          height: 16px;
-          line-height: 16px;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-        }
-
-        .close {
-          position: absolute;
-          right: 15px;
-          color: rgba(255, 255, 255, 0.5);
-          z-index: 100;
-          padding: 0 5px;
-
-          &:hover {
-            color: #fff;
-          }
-        }
-
-        &.active {
-          color: rgba(255, 255, 255, 0.9);
-          z-index: 9999;
-
-          .trapezoid {
+        &::after {
+            content: '';
+            position: absolute;
+            height: 3px;
             background-color: #3d3d3d;
-          }
+            left: 0;
+            right: 0;
+            bottom: 0;
         }
 
-        &:not(.active):hover {
-          .trapezoid {
-            background-color: #2f2f2f;
-          }
+        .logo {
+            height: 100%;
+            width: 200px;
+            flex-shrink: 0;
+            text-align: center;
+            font-size: 0;
 
-          .title {
-            color: rgba(255, 255, 255, 0.9);
-          }
+            img {
+                display: inline-block;
+                width: 120px;
+                height: 36px;
+                border-radius: 6px;
+                background-color: orangered;
+            }
         }
-      }
+
+        .tabs_title_list {
+            display: flex;
+            flex-grow: 1;
+            height: 100%;
+            align-items: flex-end;
+            user-select: none;
+            padding-bottom: 3px;
+            flex-grow: 1;
+            // position: absolute;
+            overflow: hidden;
+            bottom: 0;
+            transition: left 200ms;
+
+            .tab_title_item {
+                width: 140px;
+                height: 38px;
+                perspective: 20px;
+                position: relative;
+                color: rgba(255, 255, 255, 0.36);
+                font-size: 12px;
+                text-align: center;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding-top: 8px;
+                padding-left: 20px;
+                padding-right: 30px;
+                transition: color 200ms;
+                flex-shrink: 0;
+                // overflow: hidden;
+
+                &:not(:first-child) {
+                    margin-left: -20px;
+                }
+
+                .trapezoid {
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    top: 0;
+                    left: 0;
+                    background-color: #282828;
+                    border-radius: 8px 8px 0px 0px;
+                    transform: rotateX(10deg);
+                    transform-origin: 50% 100%;
+                    box-shadow: 0 0 2px 3px rgba(0, 0, 0, 0.2);
+                }
+
+                .title {
+                    position: relative;
+                    z-index: 99;
+                    height: 16px;
+                    line-height: 16px;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                }
+
+                .close {
+                    position: absolute;
+                    right: 15px;
+                    color: rgba(255, 255, 255, 0.5);
+                    z-index: 100;
+                    padding: 0 5px;
+
+                    &:hover {
+                        color: #fff;
+                    }
+                }
+
+                &.active {
+                    color: rgba(255, 255, 255, 0.9);
+                    z-index: 9999;
+
+                    .trapezoid {
+                        background-color: #3d3d3d;
+                    }
+                }
+
+                &:not(.active):hover {
+                    .trapezoid {
+                        background-color: #2f2f2f;
+                    }
+
+                    .title {
+                        color: rgba(255, 255, 255, 0.9);
+                    }
+                }
+            }
+        }
+
+        .right_info {
+            width: 160px;
+            color: #fff;
+            text-align: right;
+            padding: 0 20px 0 10px;
+            cursor: pointer;
+            flex-shrink: 0;
+
+            &:hover {
+                background-color: #000;
+            }
+        }
     }
 
-    .right_info {
-      width: 160px;
-      color: #fff;
-      text-align: right;
-      padding: 0 20px 0 10px;
-      cursor: pointer;
-      flex-shrink: 0;
+    .global_layout {
+        .global_sider {
+            .sider_menu {
+                height: 100%;
+                // border-right: 0;
+                overflow-x: hidden;
+                overflow-y: auto;
+            }
+        }
 
-      &:hover {
-        background-color: #000;
-      }
+        .global_content {
+            // overflow: hidden;
+        }
     }
-  }
+}
 
-  .global_layout {
-    .global_sider {
-      .sider_menu {
-        height: 100%;
-        // border-right: 0;
-        overflow-x: hidden;
-        overflow-y: auto;
-      }
-    }
+.global_click_text {
+    user-select: none;
+    cursor: pointer;
+    color: @primary-color;
 
-    .global_content {
-      // overflow: hidden;
+    &:hover {
+        text-decoration: underline;
     }
-  }
 }

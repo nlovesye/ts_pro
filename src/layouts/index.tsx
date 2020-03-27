@@ -197,7 +197,8 @@ const BaseLayout: React.FC<PageProps> = ({ app, children, dispatch }) => {
 
                 <Layout.Content className="global_content">
                     <Access
-                        accessible={authByCode(activeCode)}
+                        // accessible={authByCode(activeCode)}
+                        accessible={true}
                         fallback={<NotAuth />}
                     >
                         {children}

@@ -12,10 +12,18 @@ import {
     Checkbox,
     Slider,
     Rate,
+    message,
 } from 'antd';
-import { _getGeneral, _addGeneral } from '@/services';
+import {
+    _getGeneral,
+    _addGeneral,
+    General,
+    _updateGeneral,
+    _deleteGeneral,
+} from '@/services/general';
 import style from './style.less';
 
+// const { _getGeneral, _addGeneral, IGeneral } = _general
 const { Item } = Form;
 const { Option } = Select;
 
@@ -26,8 +34,71 @@ const adaptive = {
     4: 'S',
 };
 
-function Edit({ getData }) {
-    const [visible, setVisible] = useState(false);
+const controlMarks = {
+    2: '2',
+    3: '3',
+    4: '4',
+    5: '5',
+    6: '6',
+    7: '7',
+    8: '8',
+    9: '9',
+};
+
+enum Camp {
+    '魏' = 1,
+    '蜀' = 2,
+    '吴' = 3,
+    '群' = 4,
+}
+
+enum CampColor {
+    '#1E90FF' = 1,
+    '#00FF7F' = 2,
+    '#FF6347' = 3,
+    '#FFDEAD' = 4,
+}
+
+enum Adaptive {
+    'C' = 1,
+    'B' = 2,
+    'A' = 3,
+    'S' = 4,
+}
+
+const emptyData: General = {
+    _id: 'add',
+    camp: 1,
+    name: '',
+    quality: 3,
+    controlVal: 3,
+    level: 1,
+    cavalry: 1,
+    mauler: 1,
+    bowman: 1,
+    spearman: 1,
+    apparatus: 1,
+    advanced: 0,
+    tags: [],
+    fate: [],
+    fateCount: 0,
+    isAwaken: false,
+    isPureGeneral: true,
+};
+
+function Edit({
+    getData,
+    initData,
+    visible,
+    setVisible,
+    setInitData,
+}: {
+    getData: () => void;
+    setVisible: (flag: boolean) => void;
+    initData: General;
+    visible: boolean;
+    setInitData: (d: General) => void;
+}) {
     const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
 
@@ -35,18 +106,26 @@ function Edit({ getData }) {
         try {
             setLoading(true);
             const d = await form.validateFields();
-            console.log('d', d);
-            await _addGeneral(d);
-            setVisible(false);
+            if (d._id) {
+                delete d._id;
+            }
+            if (initData._id === 'add') {
+                await _addGeneral(d as General);
+            } else {
+                await _updateGeneral(d as General);
+            }
+            handleCancel();
             getData();
         } catch (error) {
             console.log(error);
+            message.error(error.msg || '删除失败');
         } finally {
             setLoading(false);
         }
     };
 
     const handleCancel = () => {
+        setInitData({ ...emptyData });
         setVisible(false);
     };
 
@@ -54,6 +133,25 @@ function Edit({ getData }) {
         labelCol: { span: 4 },
         wrapperCol: { span: 18 },
     };
+
+    React.useEffect(() => {
+        if (visible) {
+            if (initData._id !== 'add') {
+                console.log('initData', initData);
+                form.setFieldsValue({
+                    ...initData,
+                    cavalry: Adaptive[initData.cavalry],
+                    mauler: Adaptive[initData.mauler],
+                    bowman: Adaptive[initData.bowman],
+                    spearman: Adaptive[initData.spearman],
+                    apparatus: Adaptive[initData.apparatus],
+                });
+            }
+        }
+        // return () => {
+        //     // cleanup
+        // };
+    }, [visible]);
 
     return (
         <div className={style.titlebar}>
@@ -68,25 +166,7 @@ function Edit({ getData }) {
                 bodyStyle={{ padding: 10, height: 700, overflowY: 'auto' }}
                 confirmLoading={loading}
             >
-                <Form
-                    form={form}
-                    {...formItemLayout}
-                    initialValues={{
-                        camp: 1,
-                        quality: 3,
-                        level: 1,
-                        cavalry: 1,
-                        mauler: 1,
-                        bowman: 1,
-                        spearman: 1,
-                        apparatus: 1,
-                        advanced: 0,
-                        tags: [],
-                        fate: [],
-                        isAwaken: false,
-                        isPureGeneral: true,
-                    }}
-                >
+                <Form form={form} {...formItemLayout} initialValues={initData}>
                     <Item
                         name="name"
                         label="姓名"
@@ -118,6 +198,16 @@ function Edit({ getData }) {
                         ]}
                     >
                         <Rate allowClear={false} />
+                    </Form.Item>
+
+                    <Form.Item name="controlVal" label="统御值">
+                        <Slider
+                            key="controlVal"
+                            dots={true}
+                            min={2}
+                            max={9}
+                            marks={controlMarks}
+                        />
                     </Form.Item>
 
                     <Form.Item name="cavalry" label="骑兵">
@@ -380,7 +470,11 @@ function Edit({ getData }) {
                     </Form.Item>
                 </Form>
             </Modal>
-            <Button type="primary" onClick={() => setVisible(true)}>
+            <Button
+                type="primary"
+                size="small"
+                onClick={() => setVisible(true)}
+            >
                 武将录入
             </Button>
         </div>
@@ -388,72 +482,208 @@ function Edit({ getData }) {
 }
 
 export default function() {
+    const [visible, setVisible] = useState(false);
+    const [initData, setInitData] = useState({ ...emptyData });
+    const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
     const [current, setCurrent] = useState(1);
     const [total, setTotal] = useState(0);
     const [pageSize, setPageSize] = useState(20);
 
+    const getFlag = (flag: boolean) => (flag ? '是' : '否');
+
+    const getData = async () => {
+        try {
+            setLoading(true);
+            const ret = await _getGeneral();
+            setData(dealData(ret || []));
+        } catch (error) {
+            setData([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const onEdit = (r: General) => {
+        setInitData(r);
+        setVisible(true);
+    };
+    const onDelete = async (_id: string) => {
+        try {
+            await _deleteGeneral(_id);
+            getData();
+            message.success('操作成功');
+        } catch (error) {
+            message.error(error.msg || '删除失败');
+        }
+    };
+
     // console.log('home')
     const columns = [
         {
+            title: '序号',
+            dataIndex: '_index',
+            align: 'center',
+            render: (val: any, r: any, i: number) => ++i,
+        },
+        {
             title: '姓名',
             dataIndex: 'name',
+            align: 'center',
         },
         {
             title: '阵营',
             dataIndex: 'camp',
+            align: 'center',
+            sorter: (a: General, b: General) => a.camp - b.camp,
+            render: (val: number) => {
+                return (
+                    <span style={{ color: CampColor[val] }}>{Camp[val]}</span>
+                );
+            },
         },
         {
             title: '星级',
             dataIndex: 'quality',
+            align: 'center',
+            sorter: (a: General, b: General) => a.quality - b.quality,
+        },
+        {
+            title: '统御值',
+            dataIndex: 'controlVal',
+            align: 'center',
         },
         {
             title: '骑兵',
             dataIndex: 'cavalry',
+            align: 'center',
+            sorter: (a: General, b: General) =>
+                Adaptive[a.cavalry] - Adaptive[b.cavalry],
+            render: (val: string) => {
+                return (
+                    <span style={val === 'S' ? { color: '#FF4500' } : {}}>
+                        {val}
+                    </span>
+                );
+            },
         },
         {
             title: '盾兵',
             dataIndex: 'mauler',
+            align: 'center',
+            sorter: (a: General, b: General) =>
+                Adaptive[a.mauler] - Adaptive[b.mauler],
+            render: (val: string) => {
+                return (
+                    <span style={val === 'S' ? { color: '#FF4500' } : {}}>
+                        {val}
+                    </span>
+                );
+            },
         },
         {
             title: '弓兵',
             dataIndex: 'bowman',
+            align: 'center',
+            sorter: (a: General, b: General) =>
+                Adaptive[a.bowman] - Adaptive[b.bowman],
+            render: (val: string) => {
+                return (
+                    <span style={val === 'S' ? { color: '#FF4500' } : {}}>
+                        {val}
+                    </span>
+                );
+            },
         },
         {
             title: '枪兵',
             dataIndex: 'spearman',
+            align: 'center',
+            sorter: (a: General, b: General) =>
+                Adaptive[a.spearman] - Adaptive[b.spearman],
+            render: (val: string) => {
+                return (
+                    <span style={val === 'S' ? { color: '#FF4500' } : {}}>
+                        {val}
+                    </span>
+                );
+            },
         },
         {
             title: '器械',
             dataIndex: 'apparatus',
+            align: 'center',
+            sorter: (a: General, b: General) =>
+                Adaptive[a.apparatus] - Adaptive[b.apparatus],
+            render: (val: string) => {
+                return (
+                    <span style={val === 'S' ? { color: '#FF4500' } : {}}>
+                        {val}
+                    </span>
+                );
+            },
         },
         {
             title: '进阶等级',
             dataIndex: 'advanced',
+            align: 'center',
         },
         {
             title: '等级',
             dataIndex: 'level',
+            align: 'center',
         },
         {
             title: '标签',
             dataIndex: 'tags',
+            align: 'center',
+            render: (vals: string[]) => {
+                return vals.join('，');
+            },
         },
         {
             title: '是否觉醒',
             dataIndex: 'isAwaken',
-        },
-        {
-            title: '缘分武将',
-            dataIndex: 'fate',
-        },
-        {
-            title: '缘分组数量',
-            dataIndex: 'fateCount',
+            align: 'center',
+            render: (val: boolean) => getFlag(val),
         },
         {
             title: '内政',
             dataIndex: 'isPureGeneral',
+            align: 'center',
+            render: (val: boolean) => getFlag(!val),
+        },
+        {
+            title: '缘分武将',
+            dataIndex: 'fate',
+            align: 'center',
+        },
+        {
+            title: '缘分组数量',
+            dataIndex: 'fateCount',
+            align: 'center',
+        },
+        {
+            title: '操作',
+            dataIndex: 'operation',
+            align: 'center',
+            render: (text: undefined, record: General) => (
+                <React.Fragment>
+                    <span
+                        className="global_click_text"
+                        onClick={() => onEdit(record)}
+                    >
+                        修改
+                    </span>
+                    <span
+                        className="global_click_text"
+                        style={{ marginLeft: 10 }}
+                        onClick={() => onDelete(record._id)}
+                    >
+                        删除
+                    </span>
+                </React.Fragment>
+            ),
         },
     ];
 
@@ -482,15 +712,6 @@ export default function() {
         });
     };
 
-    const getData = async () => {
-        try {
-            const ret = await _getGeneral();
-            setData(dealData(ret || []));
-        } catch (error) {
-            setData([]);
-        }
-    };
-
     React.useEffect(() => {
         getData();
         // return () => {
@@ -500,12 +721,21 @@ export default function() {
 
     return (
         <div className={style.p_sanguo}>
-            <Edit getData={getData} />
+            <Edit
+                getData={getData}
+                initData={initData}
+                visible={visible}
+                setVisible={setVisible}
+                setInitData={setInitData}
+            />
             <Table
                 columns={columns}
+                rowKey="_id"
                 dataSource={data}
-                size="middle"
+                size="small"
                 pagination={pagination}
+                loading={loading}
+                bordered={true}
             />
         </div>
     );

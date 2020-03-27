@@ -80,7 +80,7 @@ export default <AppModelType>{
             reqData.append('username', userName);
             reqData.append('password', hex_md5(password));
             reqData.append('remember', remember);
-            console.log('req', reqData);
+            // console.log('req', reqData);
             try {
                 const ret: LoginRes = yield _login(reqData);
                 console.log('ret', ret);
