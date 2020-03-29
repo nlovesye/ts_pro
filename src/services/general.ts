@@ -21,6 +21,8 @@ export interface General {
 }
 
 export interface IQuery {
+    pageNo: number;
+    pageSize: number;
     camp?: number;
     quality?: number;
     cavalry?: number;

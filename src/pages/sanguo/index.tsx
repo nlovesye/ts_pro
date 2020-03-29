@@ -83,10 +83,16 @@ export default function() {
                     }
                 }
             }
-            const ret = await _getGeneral(query);
-            setData(dealData(ret || []));
+            const ret = await _getGeneral({
+                pageNo: current,
+                pageSize,
+                ...query,
+            });
+            setData(dealData(ret.list || []));
+            setTotal(ret.total || 0);
         } catch (error) {
             setData([]);
+            setTotal(0);
         } finally {
             setLoading(false);
         }
@@ -316,7 +322,7 @@ export default function() {
 
     const getHeight = () => {
         // console.log('w', window.innerHeight)
-        return window.innerHeight - 200;
+        return window.innerHeight - 220;
     };
 
     const querySelectStyle = { width: 90, marginRight: 10 };
