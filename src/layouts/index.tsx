@@ -33,7 +33,7 @@ interface PageProps extends ConnectProps {
 
 const BaseLayout: React.FC<PageProps> = ({ app, children, dispatch }) => {
     const intl = useIntl();
-    const { isLogin, userName, permissions, activeCode, openTabs } = app;
+    const { isLogin, nickName, permissions, activeCode, openTabs } = app;
     // const access = useAccess();
     // console.log('BaseLayout', access)
 
@@ -105,8 +105,9 @@ const BaseLayout: React.FC<PageProps> = ({ app, children, dispatch }) => {
     };
 
     // console.log('v', authByCode(activeCode))
+    // console.log('isLogin', isLogin)
 
-    return (
+    return !isLogin ? null : (
         <Layout className="root_layout">
             <Layout.Header className="global_header">
                 <div className={`logo`}>
@@ -167,7 +168,7 @@ const BaseLayout: React.FC<PageProps> = ({ app, children, dispatch }) => {
                     }
                 >
                     <div className="right_info">
-                        {userName}
+                        {nickName}
                         <DownOutlined style={{ marginLeft: 10 }} />
                     </div>
                 </Dropdown>

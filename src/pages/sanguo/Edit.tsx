@@ -81,7 +81,7 @@ export default function Edit({
     React.useEffect(() => {
         if (visible) {
             if (initData._id !== 'add') {
-                console.log('initData', initData);
+                // console.log('initData', initData);
                 form.setFieldsValue({
                     ...initData,
                     cavalry: Adaptive[initData.cavalry],

@@ -6,8 +6,10 @@ import { IPermission, ITab } from '@/types';
 
 export interface AppModelState {
     isLogin: boolean;
-    accessToken: string | null;
+    token: string | null;
     userName: string;
+    nickName: string;
+    exp: number;
     permissions: IPermission[];
     activeCode: string;
     openTabs: ITab[];
@@ -31,21 +33,25 @@ export interface AppModelType {
 }
 
 const initState = () => {
-    const BasicAuth = 'Basic YXBwOjEyMzQ1Ng==';
+    const BasicAuth = '';
     const isLogin = Boolean(localRead('isLogin'));
-    const accessToken = isLogin ? localRead('accessToken') : BasicAuth;
+    const token = isLogin ? localRead('token') : BasicAuth;
     const userName = localRead('userName') || '';
+    const nickName = localRead('nickName') || '';
+    const exp = parseInt(localRead('exp') || '0');
     const permissions = JSON.parse(localRead('permissions') || '[]');
     // const curRoute = getRouteByPath(history.location.pathname)
-    if (history.location.pathname !== '/') {
+    if (history && history.location && history.location.pathname !== '/') {
         history.replace('/');
     }
     const curRoute = { code: 'HOME', name: '首页' };
     // console.log('history', history, routes, curRoute)
     const state: AppModelState = {
         isLogin,
-        accessToken,
+        token,
         userName,
+        nickName,
+        exp,
         permissions,
         activeCode: curRoute.code || '',
         openTabs: !!curRoute.code
@@ -61,50 +67,42 @@ export default <AppModelType>{
 
     effects: {
         *login({ payload }, { call, put }) {
-            const { userName, password, remember } = payload;
+            const { userName, password } = payload;
             interface LoginRes {
-                access_token: string;
-                refresh_token: string;
-                token_type: string;
-                expires_in: number;
-                scope: string;
-                companyId: number | null;
-                id: number;
-                isAllClientProject: boolean;
-                organizationName: string;
-                username: string;
-                permissions: any[];
+                token: string;
+                nickName: string;
+                exp: number;
             }
             const reqData = new FormData();
-            reqData.append('grant_type', 'password');
-            reqData.append('username', userName);
+            reqData.append('userName', userName);
             reqData.append('password', hex_md5(password));
-            reqData.append('remember', remember);
-            // console.log('req', reqData);
             try {
                 const ret: LoginRes = yield _login(reqData);
-                console.log('ret', ret);
+                // console.log('ret', ret);
                 yield put({
                     type: 'setLoginInfo',
                     payload: {
-                        accessToken: ret.access_token,
-                        userName: ret.username,
-                        permissions: ret.permissions,
+                        token: ret.token,
+                        userName,
+                        nickName: ret.nickName,
+                        exp: ret.exp || 0,
                     },
                 });
             } catch (error) {
-                console.log(error);
+                console.log('loginError', error);
             }
         },
     },
 
     reducers: {
         setLoginInfo(state: AppModelState, action) {
-            const { accessToken, userName, permissions } = action.payload;
+            const { token, userName, nickName, exp } = action.payload;
             localSet('isLogin', true);
-            localSet('accessToken', accessToken);
+            localSet('token', token);
             localSet('userName', userName);
-            localSet('permissions', JSON.stringify(permissions || []));
+            localSet('nickName', nickName);
+            localSet('exp', exp);
+            // localSet('permissions', JSON.stringify(permissions || []));
             return {
                 ...state,
                 isLogin: true,
@@ -113,15 +111,19 @@ export default <AppModelType>{
         },
         logout(state: AppModelState) {
             localRemove('isLogin');
-            localRemove('accessToken');
+            localRemove('token');
             localRemove('userName');
-            localRemove('permissions');
+            localRemove('nickName');
+            localRead('exp');
+            // localRemove('permissions');
             return {
                 ...state,
                 isLogin: false,
-                accessToken: null,
+                token: null,
                 userName: '',
-                permissions: [],
+                nickName: '',
+                exp: 0,
+                // permissions: [],
             };
         },
         selectTab(state: AppModelState, action) {
