@@ -7,7 +7,7 @@ import {
     _updateGeneral,
     _deleteGeneral,
     IQuery,
-} from '@/services/general';
+} from '@/services/api/general';
 import Edit from './Edit';
 import style from './style.less';
 

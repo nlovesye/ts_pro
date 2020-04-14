@@ -33,7 +33,14 @@ interface PageProps extends ConnectProps {
 
 const BaseLayout: React.FC<PageProps> = ({ app, children, dispatch }) => {
     const intl = useIntl();
-    const { isLogin, nickName, permissions, activeCode, openTabs } = app;
+    const {
+        isLogin,
+        nickName,
+        permissions,
+        activeCode,
+        openTabs,
+        siderCollapsed,
+    } = app;
     // const access = useAccess();
     // console.log('BaseLayout', access)
 
@@ -47,6 +54,7 @@ const BaseLayout: React.FC<PageProps> = ({ app, children, dispatch }) => {
         if (!isLogin) {
             history.push('/login');
         }
+        return () => {};
     }, [isLogin]);
 
     const filterMenus = (menus: IPermission[]): IPermission[] =>
@@ -104,14 +112,18 @@ const BaseLayout: React.FC<PageProps> = ({ app, children, dispatch }) => {
         });
     };
 
+    const logoText = () => {
+        return siderCollapsed ? 'L' : 'Logo';
+    };
+
     // console.log('v', authByCode(activeCode))
     // console.log('isLogin', isLogin)
 
     return !isLogin ? null : (
         <Layout className="root_layout">
             <Layout.Header className="global_header">
-                <div className={`logo`}>
-                    <img src="" alt="" />
+                <div className={`logo ${siderCollapsed ? 'mini' : ''}`}>
+                    <div>{logoText()}</div>
                 </div>
 
                 <ul className="tabs_title_list">
@@ -180,6 +192,13 @@ const BaseLayout: React.FC<PageProps> = ({ app, children, dispatch }) => {
                     width={200}
                     collapsible
                     collapsedWidth={theme.menuCollapsedWidth}
+                    collapsed={siderCollapsed}
+                    onCollapse={collapsed => {
+                        dispatch({
+                            type: 'app/updateState',
+                            payload: { siderCollapsed: collapsed },
+                        });
+                    }}
                 >
                     {permissions && permissions.length ? (
                         <Menu

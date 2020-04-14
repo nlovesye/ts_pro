@@ -13,6 +13,7 @@ export interface AppModelState {
     permissions: IPermission[];
     activeCode: string;
     openTabs: ITab[];
+    siderCollapsed: boolean;
 }
 
 export interface AppModelType {
@@ -57,6 +58,7 @@ const initState = () => {
         openTabs: !!curRoute.code
             ? [{ code: curRoute.code, name: curRoute.name || '' }]
             : [],
+        siderCollapsed: false,
     };
     return state;
 };
@@ -169,6 +171,12 @@ export default <AppModelType>{
                 ...state,
                 activeCode: newActiveCode,
                 openTabs: newOpenTabs,
+            };
+        },
+        updateState(state: AppModelState, action: any) {
+            return {
+                ...state,
+                ...action.payload,
             };
         },
     },

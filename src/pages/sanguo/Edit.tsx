@@ -18,7 +18,7 @@ import {
     General,
     _updateGeneral,
     _deleteGeneral,
-} from '@/services/general';
+} from '@/services/api/general';
 import { Adaptive, emptyData } from './index';
 
 const { Item } = Form;

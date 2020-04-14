@@ -70,7 +70,7 @@ const Login: React.FC = () => {
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}
             >
-                <h1 className={style.title}>shit平台</h1>
+                <h1 className={style.title}>XX平台</h1>
                 <Form.Item
                     label="用户名"
                     name="userName"

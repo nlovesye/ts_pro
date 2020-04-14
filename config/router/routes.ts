@@ -10,20 +10,13 @@ export default [
         routes: [
             {
                 path: '/',
-                redirect: '/sanguo',
+                redirect: '/home',
             },
             {
-                path: '/HOME',
+                path: '/home',
                 code: 'HOME',
                 name: '首页',
                 component: './home',
-                // wrappers: ['@/wrappers/auth'],
-            },
-            {
-                path: '/CLIENT_SOURCE',
-                code: 'CLIENT_SOURCE',
-                name: '客户资料',
-                component: './client',
                 // wrappers: ['@/wrappers/auth'],
             },
             {

@@ -34,14 +34,26 @@ body,
             width: 200px;
             flex-shrink: 0;
             text-align: center;
-            font-size: 0;
+            padding: 0 10px;
+            font-size: 14px;
+            color: #fff;
+            transition: width 200ms;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
 
-            img {
-                display: inline-block;
-                width: 120px;
+            &.mini {
+                width: 40px;
+                padding: 0 2px;
+            }
+
+            div {
+                background-color: orangered;
+                border-radius: 4px;
+                flex-grow: 1;
                 height: 36px;
-                border-radius: 6px;
-                // background-color: orangered;
+                line-height: 36px;
             }
         }
 

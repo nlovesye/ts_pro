@@ -1,4 +1,4 @@
-import { POST, GET, PUT, DELETE } from './request';
+import { POST, GET, PUT, DELETE } from '../request';
 
 export interface General {
     _id: string;
